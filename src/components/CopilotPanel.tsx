@@ -206,11 +206,11 @@ export default function CopilotPanel({
                   <div className="flex-1 flex flex-row gap-4 min-h-0 bg-slate-950/20 border border-slate-900/60 rounded-lg p-4">
                     {/* Left 3 columns: Actions list */}
                     <div className="w-3/5 flex flex-col justify-between min-h-0 shrink-0">
-                      <div className="overflow-y-auto pr-1">
-                        <span className="text-[9px] font-bold text-slate-500 font-mono tracking-wider uppercase block mb-2">
+                      <div className="flex-1 min-h-0 overflow-y-auto pr-1">
+                        <span className="text-[9px] font-bold text-slate-500 font-mono tracking-wider uppercase block mb-1.5">
                           Coordinated Dispatch Actions
                         </span>
-                        <ul className="space-y-2 text-xs">
+                        <ul className="space-y-1 text-xs">
                           {activePlan.actions.map((action, idx) => (
                             <li key={idx} className="flex items-start gap-2.5 text-slate-200">
                               <span className="p-0.5 rounded bg-cyan-950/80 border border-cyan-800/40 text-cyan-400 mt-0.5">
@@ -223,7 +223,7 @@ export default function CopilotPanel({
                       </div>
 
                       {/* Apply button */}
-                      <div className="pt-4 shrink-0">
+                      <div className="pt-2.5 shrink-0">
                         {deployedPlanId === activePlan.id ? (
                           <div className="w-full flex items-center justify-center gap-2 py-2 px-4 rounded-lg bg-emerald-950/40 border border-emerald-800 text-emerald-400 text-xs font-bold font-mono tracking-wider">
                             <Zap className="w-4 h-4 text-emerald-400" />
