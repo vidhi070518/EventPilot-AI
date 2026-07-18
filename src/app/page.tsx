@@ -746,7 +746,7 @@ export default function WorkspaceConsole() {
 
   // WORKSPACE 1: EXECUTIVE DASHBOARD
   const renderDashboardView = () => (
-    <div className="space-y-6 flex flex-col h-full overflow-hidden">
+    <div className="space-y-6 flex flex-col h-fit">
       {/* 4 KPI Cards */}
       <div className="shrink-0">
         <KPICards 
@@ -846,7 +846,7 @@ export default function WorkspaceConsole() {
 
   // WORKSPACE 2: LIVE OPERATIONS
   const renderLiveOperationsView = () => (
-    <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 h-full min-h-0">
+    <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 h-fit">
       <div className="lg:col-span-3 flex flex-col h-full min-h-0">
         <StadiumMap sections={sections} avgWaitTime={metrics.avgWaitTime} />
       </div>
@@ -925,7 +925,7 @@ export default function WorkspaceConsole() {
 
   // WORKSPACE 3: INCIDENT CENTER
   const renderIncidentCenterView = () => (
-    <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 h-full min-h-0">
+    <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 h-fit">
       
       {/* Active Threats Ledger */}
       <div className="lg:col-span-3 flex flex-col h-full min-h-0 glass-panel rounded-xl p-6">
@@ -1016,7 +1016,7 @@ export default function WorkspaceConsole() {
 
   // WORKSPACE 4: AI OPERATIONS COPILOT (HERO)
   const renderAICopilotView = () => (
-    <div className="h-full min-h-0 flex flex-col">
+    <div className="h-fit flex flex-col">
       <CopilotPanel
         isThinking={isThinking}
         prediction={prediction}
@@ -1030,7 +1030,7 @@ export default function WorkspaceConsole() {
 
   // WORKSPACE 5: HEATMAP DENSITY WIDGETS
   const renderHeatmapView = () => (
-    <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 h-full min-h-0">
+    <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 h-fit">
       <div className="lg:col-span-3 flex flex-col h-full min-h-0">
         <StadiumMap sections={sections} avgWaitTime={metrics.avgWaitTime} />
       </div>
@@ -1110,7 +1110,7 @@ export default function WorkspaceConsole() {
     const filteredEvents = getFilteredTimelineEvents();
 
     return (
-      <div className="glass-panel rounded-xl p-6 flex flex-col h-full min-h-0 select-none">
+      <div className="glass-panel rounded-xl p-6 flex flex-col h-[585px] select-none">
         
         {/* Filters and Search Bar */}
         <div className="flex flex-col md:flex-row gap-4 justify-between items-start md:items-center mb-5 shrink-0">
@@ -1163,7 +1163,7 @@ export default function WorkspaceConsole() {
 
   // WORKSPACE 7: DIGITAL TWIN SIMULATION
   const renderSimulationView = () => (
-    <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 h-full min-h-0">
+    <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 h-fit">
       
       {/* Scenario Triggers */}
       <div className="lg:col-span-2 flex flex-col h-full min-h-0">
@@ -1226,7 +1226,7 @@ export default function WorkspaceConsole() {
 
   // WORKSPACE 8: OPERATIONS SETTINGS
   const renderSettingsView = () => (
-    <div className="glass-panel rounded-xl p-6 h-full min-h-0 flex flex-col select-none overflow-y-auto">
+    <div className="glass-panel rounded-xl p-6 h-fit flex flex-col select-none">
       <div className="flex items-center gap-2 mb-6 shrink-0">
         <Settings className="w-4 h-4 text-cyan-400" />
         <h4 className="text-xs font-bold text-slate-200 uppercase tracking-wider font-mono">
@@ -1423,7 +1423,7 @@ export default function WorkspaceConsole() {
         />
 
         {/* Dynamic Workspace Container */}
-        <main className="flex-1 overflow-hidden p-6 relative">
+        <main className="flex-1 overflow-y-auto p-6 relative">
           <AnimatePresence mode="wait">
             <motion.div
               key={activeItem}
@@ -1431,7 +1431,7 @@ export default function WorkspaceConsole() {
               animate={{ opacity: 1, y: 0 }}
               exit={animationToggle ? { opacity: 0, y: -12 } : { opacity: 1 }}
               transition={{ duration: 0.22, ease: "easeInOut" }}
-              className="w-full h-full min-h-0 flex flex-col"
+              className="w-full h-fit flex flex-col"
             >
               {renderWorkspace()}
             </motion.div>
