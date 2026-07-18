@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
 import { 
   LayoutDashboard, 
   Radio, 
@@ -65,6 +65,8 @@ export default function Sidebar({ activeItem, setActiveItem }: SidebarProps) {
             <button
               key={item.name}
               onClick={() => setActiveItem(item.name)}
+              aria-current={isActive ? "page" : undefined}
+              aria-label={item.count ? `${item.name} (${item.count})` : item.name}
               className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm transition-all duration-200 group text-left ${
                 isActive
                   ? "bg-slate-900 text-cyan-400 font-semibold border-l-2 border-cyan-400 shadow-md shadow-cyan-950/20"
@@ -81,11 +83,14 @@ export default function Sidebar({ activeItem, setActiveItem }: SidebarProps) {
               </div>
               
               {item.count && (
-                <span className={`px-2 py-0.5 rounded text-[10px] font-semibold tracking-wide font-mono ${
-                  item.count === "LIVE" 
-                    ? "bg-cyan-950 text-cyan-400 border border-cyan-800/40 animate-pulse-slow" 
-                    : "bg-rose-950 text-rose-400 border border-rose-800/40"
-                }`}>
+                <span 
+                  className={`px-2 py-0.5 rounded text-[10px] font-semibold tracking-wide font-mono ${
+                    item.count === "LIVE" 
+                      ? "bg-cyan-950 text-cyan-400 border border-cyan-800/40 animate-pulse-slow" 
+                      : "bg-rose-950 text-rose-400 border border-rose-800/40"
+                  }`}
+                  aria-label={item.count === "LIVE" ? "Live operations feed active" : `${item.count} alerts active`}
+                >
                   {item.count}
                 </span>
               )}
@@ -100,15 +105,19 @@ export default function Sidebar({ activeItem, setActiveItem }: SidebarProps) {
 
       {/* Operator Account Footer */}
       <div className="p-4 border-t border-slate-900 bg-slate-900/30">
-        <div className="flex items-center gap-3 p-1.5 rounded-lg bg-slate-900/50 border border-slate-800/30">
-          <div className="w-9 h-9 rounded-full bg-slate-800 flex items-center justify-center text-cyan-400 font-bold border border-slate-700 font-mono">
+        <div className="flex items-center gap-3 p-1.5 rounded-lg bg-slate-900/50 border border-slate-800/30" role="region" aria-label="Operator info">
+          <div className="w-9 h-9 rounded-full bg-slate-800 flex items-center justify-center text-cyan-400 font-bold border border-slate-700 font-mono" aria-hidden="true">
             OP
           </div>
           <div className="flex-1 min-w-0">
             <p className="text-xs font-semibold text-slate-200 truncate">Operator_Alpha</p>
             <p className="text-[10px] text-slate-400 truncate">Operations Lead</p>
           </div>
-          <div className="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.5)] animate-pulse" />
+          <div 
+            className="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.5)] animate-pulse" 
+            role="status"
+            aria-label="Operator Online"
+          />
         </div>
       </div>
     </aside>

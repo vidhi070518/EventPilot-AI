@@ -3,8 +3,6 @@
 import React, { useRef, useEffect } from "react";
 import { 
   Send, 
-  CheckCircle, 
-  MessageSquare,
   Shield,
   Activity,
   AlertCircle
@@ -51,16 +49,16 @@ export default function Notifications({ notifications }: NotificationsProps) {
   };
 
   return (
-    <div className="glass-panel rounded-xl p-5 flex flex-col h-[280px] select-none">
+    <section className="glass-panel rounded-xl p-5 flex flex-col h-[280px] select-none" aria-label="Operations Team Dispatches">
       {/* Title */}
       <div className="flex justify-between items-center mb-4">
         <div className="flex items-center gap-2">
-          <Send className="w-4 h-4 text-cyan-400" />
+          <Send className="w-4 h-4 text-cyan-400" aria-hidden="true" />
           <h3 className="text-sm font-bold text-slate-200 tracking-wide uppercase font-mono">
             Operations Team Dispatched
           </h3>
         </div>
-        <span className="text-[10px] font-mono text-slate-500 font-bold">
+        <span className="text-[10px] font-mono text-slate-500 font-bold" aria-label={`${notifications.length} total dispatches`}>
           TOTAL: {notifications.length}
         </span>
       </div>
@@ -68,6 +66,9 @@ export default function Notifications({ notifications }: NotificationsProps) {
       {/* Dispatches List */}
       <div 
         ref={containerRef}
+        role="feed"
+        aria-live="polite"
+        aria-busy="false"
         className="flex-1 overflow-y-auto space-y-2.5 pr-1 scroll-smooth"
       >
         <AnimatePresence initial={false}>
@@ -83,10 +84,12 @@ export default function Notifications({ notifications }: NotificationsProps) {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.25 }}
+                role="article"
+                aria-label={`Dispatch to ${dispatch.recipient} at ${dispatch.time}, status: ${dispatch.status}. Message: ${dispatch.message}`}
                 className="p-3 bg-slate-900/30 border border-slate-900 rounded-lg hover:border-slate-800/60 hover:bg-slate-900/50 transition-all flex items-start gap-3"
               >
                 {/* Icon box based on team */}
-                <div className="p-1.5 rounded bg-slate-950 border border-slate-900 shrink-0">
+                <div className="p-1.5 rounded bg-slate-950 border border-slate-900 shrink-0" aria-hidden="true">
                   {getRecipientIcon(dispatch.recipient)}
                 </div>
 
@@ -106,7 +109,10 @@ export default function Notifications({ notifications }: NotificationsProps) {
                 </div>
 
                 {/* Dispatch Status Badge */}
-                <span className={`px-2 py-0.5 rounded text-[8px] font-bold font-mono tracking-wider border uppercase shrink-0 ${getStatusStyle(dispatch.status)}`}>
+                <span 
+                  className={`px-2 py-0.5 rounded text-[8px] font-bold font-mono tracking-wider border uppercase shrink-0 ${getStatusStyle(dispatch.status)}`}
+                  aria-label={`Status: ${dispatch.status}`}
+                >
                   {dispatch.status}
                 </span>
               </motion.div>
@@ -114,6 +120,6 @@ export default function Notifications({ notifications }: NotificationsProps) {
           )}
         </AnimatePresence>
       </div>
-    </div>
+    </section>
   );
 }

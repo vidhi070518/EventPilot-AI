@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import Sidebar from "@/components/Sidebar";
 import Header from "@/components/Header";
 import KPICards from "@/components/KPICards";
@@ -28,23 +28,8 @@ import {
   Cpu, 
   Settings, 
   Radio, 
-  CloudSun, 
-  AlertTriangle,
-  Info, 
   CheckCircle,
-  HelpCircle,
-  Play,
-  Volume2,
-  Eye,
-  Sliders,
-  Layers,
-  Activity,
-  UserCheck,
-  Zap,
-  Flame,
-  Search,
-  BellRing,
-  Sparkles
+  Search
 } from "lucide-react";
 
 // Base data configurations for scenarios
@@ -470,7 +455,6 @@ export default function WorkspaceConsole() {
   const [simulationSpeed, setSimulationSpeed] = useState<string>("1x");
   const [notificationPref, setNotificationPref] = useState<string>("all");
   const [confidenceThreshold, setConfidenceThreshold] = useState<number>(90);
-  const [autoDeploy, setAutoDeploy] = useState<boolean>(false);
   const [soundEffects, setSoundEffects] = useState<boolean>(true);
   const [animationToggle, setAnimationToggle] = useState<boolean>(true);
   const [themeName, setThemeName] = useState<string>("slate-dark");
@@ -494,13 +478,8 @@ export default function WorkspaceConsole() {
     isVisible: false
   });
 
-  // Trigger baseline live AI fetch on mount
-  useEffect(() => {
-    selectScenario("baseline");
-  }, []);
-
   // Track scenario changes for the 1.5s thinking screen
-  const selectScenario = async (scenarioKey: string) => {
+  const selectScenario = useCallback(async (scenarioKey: string) => {
     setActiveScenario(scenarioKey);
     setDeployedPlanId(null);
     setIsThinking(true);
@@ -559,7 +538,14 @@ export default function WorkspaceConsole() {
         });
         
         // Map the generated plans with local plan IDs compatible with the simulator/deployer
-        const mappedPlans = genData.plans.map((p: any, idx: number) => ({
+        const mappedPlans = genData.plans.map((p: {
+          name: string;
+          actions: string[];
+          waitTime: number | string;
+          crowdDensity: number | string;
+          riskReduction: number | string;
+          staffRequired: string;
+        }, idx: number) => ({
           id: `plan-gen-${scenarioKey}-${idx}`,
           name: p.name,
           actions: p.actions,
@@ -587,7 +573,7 @@ export default function WorkspaceConsole() {
         const finishedLog = `[${timestamp}] AI Model: ${errorMsg}`;
         setActivityFeed(prev => [finishedLog, ...prev.slice(0, 7)]);
       }
-    } catch (err: any) {
+    } catch {
       // Network failure fallback
       const elapsed = Date.now() - startTime;
       const remainingDelay = Math.max(0, 1500 - elapsed);
@@ -603,10 +589,17 @@ export default function WorkspaceConsole() {
     } finally {
       setIsThinking(false);
     }
-  };
+  }, []);
+
+  // Trigger baseline live AI fetch on mount
+  useEffect(() => {
+    Promise.resolve().then(() => {
+      selectScenario("baseline");
+    });
+  }, [selectScenario]);
 
   // Deploy Strategy Handler
-  const handleDeployPlan = (planId: string) => {
+  const handleDeployPlan = useCallback((planId: string) => {
     const selectedPlan = plans.find(p => p.id === planId);
     if (!selectedPlan) return;
 
@@ -671,7 +664,7 @@ export default function WorkspaceConsole() {
     // Update AI Activity Feed
     const dispatchLog = `[${timestamp}] Operations dispatch active: ${selectedPlan.name.split(":")[0]}. Operations Teams Dispatched.`;
     setActivityFeed(prev => [dispatchLog, ...prev.slice(0, 7)]);
-  };
+  }, [plans, activeScenario]);
 
   // Demo Mode Auto-Cycling loop
   useEffect(() => {
@@ -679,7 +672,6 @@ export default function WorkspaceConsole() {
 
     const cycleKeys = ["baseline", "kickoff", "rain", "medical", "security"];
     let currentIndex = cycleKeys.indexOf(activeScenario);
-    let demoTimer: NodeJS.Timeout;
     let actionTimer: NodeJS.Timeout;
 
     const executeCycleStep = () => {
@@ -698,13 +690,13 @@ export default function WorkspaceConsole() {
       }, 5500); 
     };
 
-    demoTimer = setInterval(executeCycleStep, 11500);
+    const demoTimer = setInterval(executeCycleStep, 11500);
 
     return () => {
       clearInterval(demoTimer);
       clearTimeout(actionTimer);
     };
-  }, [demoMode, activeScenario, plans]);
+  }, [demoMode, activeScenario, plans, selectScenario, handleDeployPlan]);
 
   // Live Event Engine (speed checks based on simulationSpeed state)
   useEffect(() => {
@@ -790,7 +782,7 @@ export default function WorkspaceConsole() {
   const aiConfidence = confidence;
 
   // Timeline Filtering Logic
-  const getFilteredTimelineEvents = () => {
+  const filteredTimelineEvents = useMemo(() => {
     return events.filter(e => {
       // 1. Filter by category
       if (timelineFilter !== "all" && e.category !== timelineFilter) return false;
@@ -805,7 +797,7 @@ export default function WorkspaceConsole() {
       }
       return true;
     });
-  };
+  }, [events, timelineFilter, timelineSearch]);
 
   // Dynamic Workspace Render Switcher
   const renderWorkspace = () => {
@@ -865,7 +857,7 @@ export default function WorkspaceConsole() {
                 </span>
               </div>
               <p className="text-xs font-semibold text-slate-200 mb-1 leading-snug">
-                "{prediction.predictionText}"
+                &quot;{prediction.predictionText}&quot;
               </p>
               <button 
                 onClick={() => setActiveItem("AI Copilot")}
@@ -1197,7 +1189,7 @@ export default function WorkspaceConsole() {
 
   // WORKSPACE 6: LOG HISTORY TIMELINE (EXPANDED FILTER LIST)
   const renderTimelineView = () => {
-    const filteredEvents = getFilteredTimelineEvents();
+    const filteredEvents = filteredTimelineEvents;
 
     return (
       <div className="glass-panel rounded-xl p-6 flex flex-col h-[585px] select-none">

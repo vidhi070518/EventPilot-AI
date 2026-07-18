@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { 
   Sparkles, 
   ShieldAlert, 
@@ -35,19 +35,22 @@ export default function CopilotPanel({
   activityFeed,
   apiStatus = "simulated"
 }: CopilotPanelProps) {
-  const [selectedPlanId, setSelectedPlanId] = useState<string>("");
+  const [userSelectedPlanId, setUserSelectedPlanId] = useState<string | null>(null);
 
-  // Default select the first plan when plans change or if none selected
-  useEffect(() => {
-    if (plans.length > 0) {
-      // If there's an already deployed plan in this scenario, select it
-      if (deployedPlanId && plans.some(p => p.id === deployedPlanId)) {
-        setSelectedPlanId(deployedPlanId);
-      } else {
-        setSelectedPlanId(plans[0].id);
-      }
+  // Compute selectedPlanId dynamically on render to avoid setState inside useEffect
+  const selectedPlanId = (() => {
+    if (userSelectedPlanId && plans.some(p => p.id === userSelectedPlanId)) {
+      return userSelectedPlanId;
     }
-  }, [plans, deployedPlanId]);
+    if (deployedPlanId && plans.some(p => p.id === deployedPlanId)) {
+      return deployedPlanId;
+    }
+    return plans[0]?.id || "";
+  })();
+
+  const setSelectedPlanId = (id: string) => {
+    setUserSelectedPlanId(id);
+  };
 
   const getRiskBadgeColor = (level?: string) => {
     switch (level) {
@@ -184,7 +187,7 @@ export default function CopilotPanel({
                     Predictive Threat Vector (Horizon: {prediction.forecastTime})
                   </span>
                   <p className="text-xs font-semibold text-slate-200 mb-2 leading-relaxed">
-                    "{prediction.predictionText}"
+                    &quot;{prediction.predictionText}&quot;
                   </p>
                   <p className="text-[10px] text-slate-400">
                     <span className="font-bold text-slate-300">Situation:</span> {prediction.situationSummary}
@@ -199,7 +202,7 @@ export default function CopilotPanel({
                 </span>
 
                 {/* Plan Selection Tabs */}
-                <div className="grid grid-cols-3 gap-2 shrink-0 mb-3">
+                <div className="grid grid-cols-3 gap-2 shrink-0 mb-3" role="tablist" aria-label="Incident Response Plans">
                   {plans.map((plan) => {
                     const isSelected = selectedPlanId === plan.id;
                     const isDeployed = deployedPlanId === plan.id;
@@ -207,8 +210,11 @@ export default function CopilotPanel({
                     return (
                       <button
                         key={plan.id}
+                        role="tab"
+                        aria-selected={isSelected}
+                        aria-label={`${plan.name.split(":")[0]}: ${plan.name.split(":")[1]?.trim() || ""}${isDeployed ? " (Currently Deployed)" : ""}`}
                         onClick={() => setSelectedPlanId(plan.id)}
-                        className={`px-3 py-2.5 rounded-lg border text-left transition-all duration-200 relative ${
+                        className={`px-3 py-2.5 rounded-lg border text-left transition-all duration-200 relative focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-offset-2 focus:ring-offset-slate-950 ${
                           isSelected 
                             ? "bg-slate-900/80 border-cyan-500/50 shadow-md shadow-cyan-950/20" 
                             : "bg-slate-950/40 border-slate-900 hover:border-slate-800 hover:bg-slate-900/20"
@@ -221,7 +227,7 @@ export default function CopilotPanel({
                             {plan.name.split(":")[0]}
                           </span>
                           {isDeployed && (
-                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-[0_0_6px_rgba(52,211,153,0.8)] animate-pulse" />
+                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-[0_0_6px_rgba(52,211,153,0.8)] animate-pulse" aria-label="Active deploy indicator" />
                           )}
                         </div>
                         <span className="text-[9px] text-slate-500 truncate block mt-0.5">
@@ -263,7 +269,8 @@ export default function CopilotPanel({
                         ) : (
                           <button
                             onClick={() => onDeployPlan(activePlan.id)}
-                            className="w-full py-2.5 px-4 rounded-lg bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-bold text-xs tracking-wider transition-all duration-200 shadow-lg shadow-cyan-500/10 active:scale-[0.99] font-mono"
+                            aria-label={`Deploy response plan: ${activePlan.name}`}
+                            className="w-full py-2.5 px-4 rounded-lg bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-bold text-xs tracking-wider transition-all duration-200 shadow-lg shadow-cyan-500/10 active:scale-[0.99] font-mono focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-offset-2 focus:ring-offset-slate-950"
                           >
                             DEPLOY OPERATIONAL PLAN
                           </button>
@@ -328,9 +335,8 @@ export default function CopilotPanel({
                         </div>
                       </div>
 
-                      {/* Small informational note */}
                       <div className="bg-slate-900/60 rounded p-2 border border-slate-800/40 text-[9px] text-slate-500 leading-tight">
-                        Impact metrics are generated by the stadium's Digital Twin neural simulator.
+                        Impact metrics are generated by the stadium&apos;s Digital Twin neural simulator.
                       </div>
                     </div>
                   </div>
@@ -347,7 +353,12 @@ export default function CopilotPanel({
           <Terminal className="w-3.5 h-3.5 text-cyan-500" />
           <span>Cognitive Feed Telemetry</span>
         </div>
-        <div className="bg-slate-950/80 rounded border border-slate-900/80 p-2.5 h-[65px] overflow-y-auto space-y-1 font-mono text-[9px] text-slate-400 leading-none">
+        <div 
+          role="log"
+          aria-live="polite"
+          aria-label="Cognitive feed logs"
+          className="bg-slate-950/80 rounded border border-slate-900/80 p-2.5 h-[65px] overflow-y-auto space-y-1 font-mono text-[9px] text-slate-400 leading-none"
+        >
           {activityFeed.map((log, idx) => (
             <div key={idx} className="flex gap-2">
               <span className="text-cyan-600 shrink-0">&gt;&gt;</span>

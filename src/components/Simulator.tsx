@@ -2,7 +2,6 @@
 
 import React from "react";
 import { 
-  Play, 
   CloudRain, 
   Flame, 
   Heart, 
@@ -53,12 +52,12 @@ export default function Simulator({ activeScenario, onSelectScenario }: Simulato
   ];
 
   return (
-    <div className="glass-panel rounded-xl p-5 flex flex-col h-[280px] select-none justify-between">
+    <section className="glass-panel rounded-xl p-5 flex flex-col h-[280px] select-none justify-between" aria-label="Digital Twin Simulator">
       {/* Header Info */}
       <div>
         <div className="flex justify-between items-center mb-1">
           <div className="flex items-center gap-2">
-            <TrendingUp className="w-4 h-4 text-cyan-400" />
+            <TrendingUp className="w-4 h-4 text-cyan-400" aria-hidden="true" />
             <h3 className="text-sm font-bold text-slate-200 tracking-wide uppercase font-mono">
               Digital Twin Simulation
             </h3>
@@ -66,9 +65,10 @@ export default function Simulator({ activeScenario, onSelectScenario }: Simulato
           {activeScenario !== "baseline" && (
             <button
               onClick={() => onSelectScenario("baseline")}
-              className="flex items-center gap-1.5 text-[9px] font-bold font-mono text-slate-400 hover:text-cyan-400 px-2 py-0.5 rounded bg-slate-900 border border-slate-800 transition-colors"
+              aria-label="Reset simulation to baseline nominal status"
+              className="flex items-center gap-1.5 text-[9px] font-bold font-mono text-slate-400 hover:text-cyan-400 px-2 py-0.5 rounded bg-slate-900 border border-slate-800 transition-colors focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-offset-2 focus:ring-offset-slate-950"
             >
-              <RefreshCw className="w-3 h-3" />
+              <RefreshCw className="w-3 h-3" aria-hidden="true" />
               RESET SYSTEM
             </button>
           )}
@@ -79,7 +79,7 @@ export default function Simulator({ activeScenario, onSelectScenario }: Simulato
       </div>
 
       {/* Buttons Grid */}
-      <div className="grid grid-cols-2 gap-3 my-3">
+      <div className="grid grid-cols-2 gap-3 my-3" role="group" aria-label="Simulation Scenarios">
         {scenarios.map((scenario) => {
           const Icon = scenario.icon;
           const isActive = activeScenario === scenario.id;
@@ -88,7 +88,9 @@ export default function Simulator({ activeScenario, onSelectScenario }: Simulato
             <button
               key={scenario.id}
               onClick={() => onSelectScenario(scenario.id)}
-              className={`p-3 rounded-lg border text-left flex flex-col justify-between transition-all duration-300 group h-[75px] ${
+              aria-pressed={isActive}
+              aria-label={`Simulate ${scenario.name}. ${scenario.desc}`}
+              className={`p-3 rounded-lg border text-left flex flex-col justify-between transition-all duration-300 group h-[75px] focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-offset-2 focus:ring-offset-slate-950 ${
                 isActive ? scenario.activeColor : scenario.color
               }`}
             >
@@ -98,7 +100,7 @@ export default function Simulator({ activeScenario, onSelectScenario }: Simulato
                 </span>
                 <Icon className={`w-4 h-4 transition-transform group-hover:scale-110 duration-200 ${
                   isActive ? "animate-pulse" : ""
-                }`} />
+                }`} aria-hidden="true" />
               </div>
               <span className="text-[8px] text-slate-500 group-hover:text-slate-400 transition-colors leading-tight font-medium">
                 {scenario.desc}
@@ -110,9 +112,9 @@ export default function Simulator({ activeScenario, onSelectScenario }: Simulato
 
       {/* Footnote */}
       <div className="text-[8px] text-slate-500 font-mono flex items-center gap-1">
-        <span className="w-1.5 h-1.5 rounded-full bg-cyan-500/50" />
+        <span className="w-1.5 h-1.5 rounded-full bg-cyan-500/50" aria-hidden="true" />
         <span>Scenario shifts will re-route real-time telemetry datasets.</span>
       </div>
-    </div>
+    </section>
   );
 }

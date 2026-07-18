@@ -4,8 +4,6 @@ import React, { useState, useEffect } from "react";
 import { 
   CloudSun, 
   AlertTriangle, 
-  Activity, 
-  HelpCircle,
   Play,
   Pause
 } from "lucide-react";
@@ -76,7 +74,10 @@ export default function Header({
           </div>
           <button
             onClick={() => setDemoMode(!demoMode)}
-            className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
+            role="switch"
+            aria-checked={demoMode}
+            aria-label="Toggle Demo Mode Auto Scenario Cycle"
+            className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-offset-2 focus:ring-offset-slate-950 ${
               demoMode ? "bg-cyan-500 shadow-[0_0_8px_rgba(6,182,212,0.4)]" : "bg-slate-800"
             }`}
           >
@@ -86,9 +87,9 @@ export default function Header({
               }`}
             >
               {demoMode ? (
-                <Play className="w-2.5 h-2.5 fill-current" />
+                <Play className="w-2.5 h-2.5 fill-current" aria-hidden="true" />
               ) : (
-                <Pause className="w-2.5 h-2.5 fill-current" />
+                <Pause className="w-2.5 h-2.5 fill-current" aria-hidden="true" />
               )}
             </span>
           </button>
@@ -118,7 +119,7 @@ export default function Header({
         </div>
 
         {/* Stadium Health Progress */}
-        <div className="flex items-center gap-3 bg-slate-900/30 px-3 py-1 rounded-lg border border-slate-900">
+        <div className="flex items-center gap-3 bg-slate-900/30 px-3 py-1 rounded-lg border border-slate-900" role="status" aria-label={`System Health: ${stadiumHealth}%`}>
           <div className="flex flex-col text-right">
             <span className="text-[8px] text-slate-500 font-semibold uppercase tracking-wider font-mono">
               System Health
@@ -148,8 +149,8 @@ export default function Header({
         </div>
 
         {/* Active Incidents Badge */}
-        <div className="flex items-center gap-2 bg-slate-900/30 px-3 py-1.5 rounded-lg border border-slate-900">
-          <div className="relative">
+        <div className="flex items-center gap-2 bg-slate-900/30 px-3 py-1.5 rounded-lg border border-slate-900" role="status" aria-label={`${activeAlerts} active incidents`}>
+          <div className="relative" aria-hidden="true">
             <AlertTriangle className={`w-4 h-4 ${activeAlerts > 0 ? "text-rose-400 animate-bounce" : "text-emerald-400"}`} />
             {activeAlerts > 0 && (
               <span className="absolute -top-1 -right-1.5 w-2 h-2 rounded-full bg-rose-500 animate-ping" />
@@ -169,7 +170,8 @@ export default function Header({
         <div className="flex items-center gap-2.5 bg-slate-900/50 border border-slate-800/80 px-3 py-1.5 rounded-lg">
           <div className="relative w-8 h-8 flex items-center justify-center">
             {/* SVG Progress Circle */}
-            <svg className="w-full h-full transform -rotate-90">
+            <svg className="w-full h-full transform -rotate-90" role="img" aria-label={`AI Confidence Score: ${aiConfidence}%`}>
+              <title>AI Confidence Score Radial Progress Gauge</title>
               <circle
                 cx="16"
                 cy="16"

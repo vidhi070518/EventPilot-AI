@@ -20,10 +20,24 @@ interface AIResponse {
   plans: AIPlan[];
 }
 
+interface POSTRequestBody {
+  scenarioKey?: string;
+  scenarioName?: string;
+  metrics?: {
+    stadiumHealth: number;
+    crowdDensity: number;
+    activeAlerts: number;
+    avgWaitTime: number;
+  };
+  sections?: Record<string, string>;
+  weather?: string;
+  activeAlerts?: number;
+}
+
 export async function POST(request: Request) {
-  let body: any;
+  let body: POSTRequestBody | null = null;
   try {
-    body = await request.json();
+    body = await request.json() as POSTRequestBody;
   } catch (parseError) {
     console.error("Internal Server Error parsing JSON request:", parseError);
     return NextResponse.json({ success: false, error: "API_BAD_REQUEST" });
@@ -144,16 +158,18 @@ export async function POST(request: Request) {
       }
 
       return NextResponse.json({ success: true, data: parsedData });
-    } catch (apiError: any) {
-      if (apiError.message === "Timeout") {
+    } catch (apiError: unknown) {
+      const error = apiError as Error;
+      if (error.message === "Timeout") {
         console.warn("Gemini API request timed out after 10s");
         return NextResponse.json({ success: false, error: "API_TIMEOUT" });
       }
       console.error("Gemini API execution error:", apiError);
-      return NextResponse.json({ success: false, error: "API_ERROR", details: apiError.message });
+      return NextResponse.json({ success: false, error: "API_ERROR", details: error.message });
     }
-  } catch (err: any) {
+  } catch (err: unknown) {
+    const error = err as Error;
     console.error("Internal Server Error in copilot endpoint:", err);
-    return NextResponse.json({ success: false, error: "SERVER_ERROR", details: err.message });
+    return NextResponse.json({ success: false, error: "SERVER_ERROR", details: error.message });
   }
 }

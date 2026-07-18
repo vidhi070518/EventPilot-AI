@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { MapPin, Info, Users, ShieldAlert } from "lucide-react";
+import { MapPin, Info } from "lucide-react";
 import { StadiumSections, SectionStatus } from "@/types";
 
 interface StadiumMapProps {
@@ -17,7 +17,7 @@ interface SectionMeta {
   description: string;
 }
 
-export default function StadiumMap({ sections, avgWaitTime }: StadiumMapProps) {
+const StadiumMap = React.memo(function StadiumMap({ sections, avgWaitTime }: StadiumMapProps) {
   const [hoveredSection, setHoveredSection] = useState<SectionMeta | null>(null);
   const [tooltipPos, setTooltipPos] = useState({ x: 0, y: 0 });
 
@@ -118,7 +118,7 @@ export default function StadiumMap({ sections, avgWaitTime }: StadiumMapProps) {
   };
 
   return (
-    <div className="glass-panel rounded-xl p-6 flex flex-col h-[400px] relative select-none">
+    <section className="glass-panel rounded-xl p-6 flex flex-col h-[400px] relative select-none" aria-label="Digital Twin Stadium Overview">
       {/* Title Header */}
       <div className="flex justify-between items-center mb-4">
         <div className="flex items-center gap-2">
@@ -164,8 +164,13 @@ export default function StadiumMap({ sections, avgWaitTime }: StadiumMapProps) {
 
           {/* PARKING AREA (Outer Sector) */}
           <g 
-            className="transition-all duration-300 ease-in-out"
+            className="transition-all duration-300 ease-in-out focus:outline-none focus:stroke-white group"
+            tabIndex={0}
+            role="img"
+            aria-label={`Parking Area status: ${sections.parking}. ${sectionMetadata.parking.description}`}
             onMouseEnter={() => handleMouseEnter("parking")}
+            onFocus={() => handleMouseEnter("parking")}
+            onBlur={() => setHoveredSection(null)}
           >
             <rect 
               x="20" 
@@ -183,8 +188,13 @@ export default function StadiumMap({ sections, avgWaitTime }: StadiumMapProps) {
 
           {/* FOOD COURT AREA (Concourse Outer Ring) */}
           <g 
-            className="transition-all duration-300 ease-in-out"
+            className="transition-all duration-300 ease-in-out focus:outline-none focus:stroke-white group"
+            tabIndex={0}
+            role="img"
+            aria-label={`Food Court status: ${sections.foodCourt}. ${sectionMetadata.foodCourt.description}`}
             onMouseEnter={() => handleMouseEnter("foodCourt")}
+            onFocus={() => handleMouseEnter("foodCourt")}
+            onBlur={() => setHoveredSection(null)}
           >
             <path 
               d="M 410 70 L 460 70 L 460 250 L 410 250 Z" 
@@ -215,8 +225,13 @@ export default function StadiumMap({ sections, avgWaitTime }: StadiumMapProps) {
             fill={getStatusColors(sections.northGate).fill}
             stroke={getStatusColors(sections.northGate).stroke}
             strokeWidth="2"
-            className="cursor-pointer hover:opacity-90 transition-all duration-300"
+            tabIndex={0}
+            role="img"
+            aria-label={`North Gate status: ${sections.northGate}. ${sectionMetadata.northGate.description}`}
+            className="cursor-pointer hover:opacity-90 transition-all duration-300 focus:outline-none focus:stroke-white"
             onMouseEnter={() => handleMouseEnter("northGate")}
+            onFocus={() => handleMouseEnter("northGate")}
+            onBlur={() => setHoveredSection(null)}
           />
           <text x="250" y="64" fill="#ffffff" fontSize="7.5" fontWeight="bold" textAnchor="middle" pointerEvents="none" className="font-mono tracking-wider opacity-90">NORTH GATE</text>
 
@@ -226,8 +241,13 @@ export default function StadiumMap({ sections, avgWaitTime }: StadiumMapProps) {
             fill={getStatusColors(sections.southGate).fill}
             stroke={getStatusColors(sections.southGate).stroke}
             strokeWidth="2"
-            className="cursor-pointer hover:opacity-90 transition-all duration-300"
+            tabIndex={0}
+            role="img"
+            aria-label={`South Gate status: ${sections.southGate}. ${sectionMetadata.southGate.description}`}
+            className="cursor-pointer hover:opacity-90 transition-all duration-300 focus:outline-none focus:stroke-white"
             onMouseEnter={() => handleMouseEnter("southGate")}
+            onFocus={() => handleMouseEnter("southGate")}
+            onBlur={() => setHoveredSection(null)}
           />
           <text x="250" y="260" fill="#ffffff" fontSize="7.5" fontWeight="bold" textAnchor="middle" pointerEvents="none" className="font-mono tracking-wider opacity-90">SOUTH GATE</text>
 
@@ -237,8 +257,13 @@ export default function StadiumMap({ sections, avgWaitTime }: StadiumMapProps) {
             fill={getStatusColors(sections.eastGate).fill}
             stroke={getStatusColors(sections.eastGate).stroke}
             strokeWidth="2"
-            className="cursor-pointer hover:opacity-90 transition-all duration-300"
+            tabIndex={0}
+            role="img"
+            aria-label={`East Gate status: ${sections.eastGate}. ${sectionMetadata.eastGate.description}`}
+            className="cursor-pointer hover:opacity-90 transition-all duration-300 focus:outline-none focus:stroke-white"
             onMouseEnter={() => handleMouseEnter("eastGate")}
+            onFocus={() => handleMouseEnter("eastGate")}
+            onBlur={() => setHoveredSection(null)}
           />
           <text x="374" y="163" fill="#ffffff" fontSize="7" fontWeight="bold" textAnchor="middle" pointerEvents="none" className="font-mono tracking-wide opacity-90">EAST GATE</text>
 
@@ -248,8 +273,13 @@ export default function StadiumMap({ sections, avgWaitTime }: StadiumMapProps) {
             fill={getStatusColors(sections.westGate).fill}
             stroke={getStatusColors(sections.westGate).stroke}
             strokeWidth="2"
-            className="cursor-pointer hover:opacity-90 transition-all duration-300"
+            tabIndex={0}
+            role="img"
+            aria-label={`West Gate status: ${sections.westGate}. ${sectionMetadata.westGate.description}`}
+            className="cursor-pointer hover:opacity-90 transition-all duration-300 focus:outline-none focus:stroke-white"
             onMouseEnter={() => handleMouseEnter("westGate")}
+            onFocus={() => handleMouseEnter("westGate")}
+            onBlur={() => setHoveredSection(null)}
           />
           <text x="126" y="163" fill="#ffffff" fontSize="7" fontWeight="bold" textAnchor="middle" pointerEvents="none" className="font-mono tracking-wide opacity-90">WEST GATE</text>
 
@@ -259,8 +289,13 @@ export default function StadiumMap({ sections, avgWaitTime }: StadiumMapProps) {
             fill={getStatusColors(sections.vipEntrance).fill}
             stroke={getStatusColors(sections.vipEntrance).stroke}
             strokeWidth="2"
-            className="cursor-pointer hover:opacity-90 transition-all duration-300"
+            tabIndex={0}
+            role="img"
+            aria-label={`VIP Entrance status: ${sections.vipEntrance}. ${sectionMetadata.vipEntrance.description}`}
+            className="cursor-pointer hover:opacity-90 transition-all duration-300 focus:outline-none focus:stroke-white"
             onMouseEnter={() => handleMouseEnter("vipEntrance")}
+            onFocus={() => handleMouseEnter("vipEntrance")}
+            onBlur={() => setHoveredSection(null)}
           />
           <text x="154" y="93" fill="#ffffff" fontSize="7.5" fontWeight="bold" textAnchor="middle" pointerEvents="none" className="font-mono tracking-wider opacity-90">VIP</text>
 
@@ -326,9 +361,11 @@ export default function StadiumMap({ sections, avgWaitTime }: StadiumMapProps) {
       </div>
 
       <div className="mt-3 flex items-center gap-1.5 text-[10px] text-slate-500">
-        <Info className="w-3.5 h-3.5 text-cyan-500" />
-        <span>Hover over map sectors for active capacity and flow wait time telemetry.</span>
+        <Info className="w-3.5 h-3.5 text-cyan-505" aria-hidden="true" />
+        <span>Keyboard: Tab through gates to inspect active capacity and flow wait time telemetry.</span>
       </div>
-    </div>
+    </section>
   );
-}
+});
+
+export default StadiumMap;

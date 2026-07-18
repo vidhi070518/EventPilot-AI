@@ -54,12 +54,13 @@ function useCountUp(target: number, duration: number = 800, decimals: number = 0
     return () => {
       window.cancelAnimationFrame(animationFrameId);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [target, duration, decimals]);
 
   return count;
 }
 
-export default function KPICards({
+const KPICards = React.memo(function KPICards({
   stadiumHealth,
   crowdDensity,
   activeAlerts,
@@ -143,17 +144,18 @@ export default function KPICards({
   ];
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+    <section className="grid grid-cols-1 md:grid-cols-4 gap-6" aria-label="Stadium Key Performance Indicators">
       {cards.map((card, idx) => {
         const Icon = card.icon;
 
         return (
-          <motion.div
+          <motion.article
             key={card.title}
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, delay: idx * 0.08 }}
             className="glass-panel glass-card-hover rounded-xl p-5 relative overflow-hidden flex flex-col justify-between h-[135px]"
+            aria-label={`${card.title}: ${card.value}${card.suffix || ""}`}
           >
             {/* Ambient Background Glow overlay */}
             <div className="absolute -top-12 -right-12 w-24 h-24 rounded-full bg-cyan-500/5 blur-xl pointer-events-none" />
@@ -161,12 +163,12 @@ export default function KPICards({
             {/* Header info */}
             <div className="flex justify-between items-start">
               <div>
-                <span className="text-xs text-slate-400 font-semibold tracking-wide uppercase font-mono">
+                <h3 className="text-xs text-slate-400 font-semibold tracking-wide uppercase font-mono">
                   {card.title}
-                </span>
+                </h3>
                 <p className="text-[10px] text-slate-500 font-medium">{card.subtitle}</p>
               </div>
-              <div className={`p-2 rounded-lg bg-slate-900 border border-slate-800 text-cyan-400`}>
+              <div className={`p-2 rounded-lg bg-slate-900 border border-slate-800 text-cyan-400`} aria-hidden="true">
                 <Icon className="w-4.5 h-4.5" />
               </div>
             </div>
@@ -184,13 +186,14 @@ export default function KPICards({
 
               <div className="flex flex-col items-end">
                 <span className={`text-[10px] font-bold font-mono ${card.statusColor} uppercase tracking-wider`}>
-                  {card.status}
+                  <span className="sr-only">Status: </span>{card.status}
                 </span>
                 <div className="flex items-center text-[10px] text-slate-400 font-mono">
+                  <span className="sr-only">Trend: {card.trend === "up" ? "Increased" : "Decreased"} by </span>
                   {card.trend === "up" ? (
-                    <ArrowUpRight className="w-3 h-3 text-cyan-400 mr-0.5 shrink-0" />
+                    <ArrowUpRight className="w-3 h-3 text-cyan-400 mr-0.5 shrink-0" aria-hidden="true" />
                   ) : (
-                    <ArrowDownRight className="w-3 h-3 text-rose-500 mr-0.5 shrink-0" />
+                    <ArrowDownRight className="w-3 h-3 text-rose-500 mr-0.5 shrink-0" aria-hidden="true" />
                   )}
                   <span className={card.trend === "up" ? "text-cyan-400/90" : "text-rose-500/90"}>
                     {card.trendValue}
@@ -206,9 +209,11 @@ export default function KPICards({
               card.color === "rose" ? "hover:to-rose-500 hover:from-rose-900" :
               "hover:to-amber-500 hover:from-amber-900"
             } transition-all duration-300`} />
-          </motion.div>
+          </motion.article>
         );
       })}
-    </div>
+    </section>
   );
-}
+});
+
+export default KPICards;

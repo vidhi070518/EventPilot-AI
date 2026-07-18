@@ -7,7 +7,6 @@ import {
   CheckCircle, 
   XCircle,
   Clock,
-  Sparkles,
   Zap
 } from "lucide-react";
 import { TimelineEvent } from "@/types";
@@ -62,17 +61,17 @@ export default function LiveTimeline({ events }: LiveTimelineProps) {
   };
 
   return (
-    <div className="glass-panel rounded-xl p-5 flex flex-col h-[400px] select-none">
+    <section className="glass-panel rounded-xl p-5 flex flex-col h-[400px] select-none" aria-label="Live Incident Timeline">
       {/* Header */}
       <div className="flex justify-between items-center mb-4">
         <div className="flex items-center gap-2">
-          <Clock className="w-4 h-4 text-cyan-400" />
+          <Clock className="w-4 h-4 text-cyan-400" aria-hidden="true" />
           <h3 className="text-sm font-bold text-slate-200 tracking-wide uppercase font-mono">
             Live Incident Timeline
           </h3>
         </div>
         <span className="flex items-center gap-1.5 px-2 py-0.5 rounded bg-slate-900 border border-slate-800 text-[9px] text-slate-400 font-mono">
-          <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-ping" />
+          <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-ping" aria-hidden="true" />
           STREAMING
         </span>
       </div>
@@ -80,6 +79,9 @@ export default function LiveTimeline({ events }: LiveTimelineProps) {
       {/* Events Container */}
       <div 
         ref={containerRef}
+        role="feed"
+        aria-live="polite"
+        aria-busy="false"
         className="flex-1 overflow-y-auto space-y-3 pr-2 scroll-smooth"
       >
         <AnimatePresence initial={false}>
@@ -95,10 +97,12 @@ export default function LiveTimeline({ events }: LiveTimelineProps) {
                 animate={{ opacity: 1, x: 0, height: "auto" }}
                 exit={{ opacity: 0, x: -20, height: 0 }}
                 transition={{ duration: 0.3 }}
+                role="article"
+                aria-label={`Event logged at ${event.time}${event.section ? ` in ${event.section}` : ""}: ${event.message}`}
                 className={`p-3.5 rounded-lg border flex gap-3 text-xs leading-relaxed ${getCategoryStyles(event.category, event.isCustomDispatch)}`}
               >
                 {/* Left Side Category Icon + Pulse */}
-                <div className="flex flex-col items-center pt-0.5">
+                <div className="flex flex-col items-center pt-0.5" aria-hidden="true">
                   <div className="relative">
                     {getCategoryIcon(event.category, event.isCustomDispatch)}
                     {event.category === "danger" && (
@@ -126,6 +130,6 @@ export default function LiveTimeline({ events }: LiveTimelineProps) {
           )}
         </AnimatePresence>
       </div>
-    </div>
+    </section>
   );
 }
