@@ -460,6 +460,11 @@ export default function WorkspaceConsole() {
   // Active Incidents list state
   const [activeIncidents, setActiveIncidents] = useState<ActiveIncident[]>(getInitialIncidents("baseline"));
 
+  // Gemini API and dynamic metrics states
+  const [apiStatus, setApiStatus] = useState<"live" | "simulated" | "error">("simulated");
+  const [confidence, setConfidence] = useState<number>(SCENARIOS.baseline.confidence);
+  const [weather, setWeather] = useState<string>("21°C | Clear");
+
   // Settings states
   const [simulationSpeed, setSimulationSpeed] = useState<string>("1x");
   const [notificationPref, setNotificationPref] = useState<string>("all");
@@ -489,7 +494,7 @@ export default function WorkspaceConsole() {
   });
 
   // Track scenario changes for the 1.5s thinking screen
-  const selectScenario = (scenarioKey: string) => {
+  const selectScenario = async (scenarioKey: string) => {
     setActiveScenario(scenarioKey);
     setDeployedPlanId(null);
     setIsThinking(true);
@@ -498,24 +503,100 @@ export default function WorkspaceConsole() {
     const triggerLog = `[${timestamp}] Simulation shift: Loading telemetry for ${SCENARIOS[scenarioKey].name}...`;
     setActivityFeed(prev => [triggerLog, ...prev.slice(0, 7)]);
 
-    setTimeout(() => {
-      setIsThinking(false);
-      const data = SCENARIOS[scenarioKey];
-      setMetrics(data.metrics);
-      setSections(data.sections);
-      setPrediction(data.prediction);
-      setPlans(data.plans);
-      
-      // Load incidents
-      setActiveIncidents(getInitialIncidents(scenarioKey));
+    // Load physical telemetry and incidents immediately
+    const mockData = SCENARIOS[scenarioKey];
+    setMetrics(mockData.metrics);
+    setSections(mockData.sections);
+    setActiveIncidents(getInitialIncidents(scenarioKey));
 
-      // Update timeline and notifications
-      setEvents(prev => [...data.initialEvents, ...prev.filter(e => e.isCustomDispatch).slice(0, 15)]);
-      setNotifications(prev => [...data.initialNotifications, ...prev.filter(n => n.status === "Active").slice(0, 15)]);
-      
-      const finishedLog = `[${timestamp}] AI Model: Analysis completed. ${data.plans.length} Coordinated Response Plans generated.`;
+    // Update weather status
+    const currentScenarioWeather = scenarioKey === "rain" ? "17°C | Heavy Rain" : "21°C | Clear";
+    setWeather(currentScenarioWeather);
+
+    // Update timeline and notifications
+    setEvents(prev => [...mockData.initialEvents, ...prev.filter(e => e.isCustomDispatch).slice(0, 15)]);
+    setNotifications(prev => [...mockData.initialNotifications, ...prev.filter(n => n.status === "Active").slice(0, 15)]);
+
+    const startTime = Date.now();
+
+    try {
+      const response = await fetch("/api/copilot", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          scenarioKey,
+          scenarioName: mockData.name,
+          metrics: mockData.metrics,
+          sections: mockData.sections,
+          weather: currentScenarioWeather,
+          activeAlerts: getInitialIncidents(scenarioKey).length
+        })
+      });
+
+      const result = await response.json();
+
+      // Enforce the 1.5 second loading experience
+      const elapsed = Date.now() - startTime;
+      const remainingDelay = Math.max(0, 1500 - elapsed);
+      await new Promise(resolve => setTimeout(resolve, remainingDelay));
+
+      if (result.success && result.data) {
+        // Successful live LLM analysis
+        const genData = result.data;
+        setApiStatus("live");
+        setConfidence(genData.confidence || 94);
+        setPrediction({
+          riskLevel: (genData.riskLevel as 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL') || "LOW",
+          predictionText: genData.prediction || "",
+          forecastTime: "15m",
+          situationSummary: genData.summary || ""
+        });
+        
+        // Map the generated plans with local plan IDs compatible with the simulator/deployer
+        const mappedPlans = genData.plans.map((p: any, idx: number) => ({
+          id: `plan-gen-${scenarioKey}-${idx}`,
+          name: p.name,
+          actions: p.actions,
+          predictedWaitTime: Number(p.waitTime),
+          predictedCrowdDensity: Number(p.crowdDensity),
+          riskReduction: Number(p.riskReduction),
+          staffRequired: p.staffRequired
+        }));
+        
+        setPlans(mappedPlans);
+
+        const finishedLog = `[${timestamp}] AI Model: Gemini live analysis completed (Confidence: ${genData.confidence}%).`;
+        setActivityFeed(prev => [finishedLog, ...prev.slice(0, 7)]);
+      } else {
+        // Fallback to local simulation mode on error or missing key
+        setApiStatus(result.error === "API_KEY_MISSING" ? "simulated" : "error");
+        setConfidence(mockData.confidence);
+        setPrediction(mockData.prediction);
+        setPlans(mockData.plans);
+
+        const errorMsg = result.error === "API_KEY_MISSING" 
+          ? "Local Simulation Mode active (GEMINI_API_KEY missing)." 
+          : `AI Copilot unavailable (error: ${result.error}). Running fallback simulation.`;
+        
+        const finishedLog = `[${timestamp}] AI Model: ${errorMsg}`;
+        setActivityFeed(prev => [finishedLog, ...prev.slice(0, 7)]);
+      }
+    } catch (err: any) {
+      // Network failure fallback
+      const elapsed = Date.now() - startTime;
+      const remainingDelay = Math.max(0, 1500 - elapsed);
+      await new Promise(resolve => setTimeout(resolve, remainingDelay));
+
+      setApiStatus("error");
+      setConfidence(mockData.confidence);
+      setPrediction(mockData.prediction);
+      setPlans(mockData.plans);
+
+      const finishedLog = `[${timestamp}] AI Model: Connection failed. Running fallback simulation.`;
       setActivityFeed(prev => [finishedLog, ...prev.slice(0, 7)]);
-    }, 1500);
+    } finally {
+      setIsThinking(false);
+    }
   };
 
   // Deploy Strategy Handler
@@ -700,7 +781,7 @@ export default function WorkspaceConsole() {
 
   // Helper properties
   const alertsCount = activeIncidents.filter(inc => inc.status !== "RESOLVED").length;
-  const aiConfidence = SCENARIOS[activeScenario].confidence;
+  const aiConfidence = confidence;
 
   // Timeline Filtering Logic
   const getFilteredTimelineEvents = () => {
@@ -1024,6 +1105,7 @@ export default function WorkspaceConsole() {
         onDeployPlan={handleDeployPlan}
         deployedPlanId={deployedPlanId}
         activityFeed={activityFeed}
+        apiStatus={apiStatus}
       />
     </div>
   );
@@ -1420,6 +1502,7 @@ export default function WorkspaceConsole() {
           aiConfidence={aiConfidence}
           demoMode={demoMode}
           setDemoMode={setDemoMode}
+          weather={weather}
         />
 
         {/* Dynamic Workspace Container */}

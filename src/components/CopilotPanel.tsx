@@ -23,6 +23,7 @@ interface CopilotPanelProps {
   onDeployPlan: (planId: string) => void;
   deployedPlanId: string | null;
   activityFeed: string[];
+  apiStatus?: "idle" | "live" | "simulated" | "error";
 }
 
 export default function CopilotPanel({
@@ -31,7 +32,8 @@ export default function CopilotPanel({
   plans,
   onDeployPlan,
   deployedPlanId,
-  activityFeed
+  activityFeed,
+  apiStatus = "simulated"
 }: CopilotPanelProps) {
   const [selectedPlanId, setSelectedPlanId] = useState<string>("");
 
@@ -81,9 +83,24 @@ export default function CopilotPanel({
             <p className="text-[10px] text-slate-500 font-medium">Predictive Decision Support Engine</p>
           </div>
         </div>
-        <div className="flex items-center gap-1 text-[9px] font-mono text-cyan-400 font-semibold px-2 py-0.5 rounded bg-slate-900 border border-slate-800">
-          <Activity className="w-3 h-3 text-cyan-400 animate-pulse" />
-          COGNITIVE NODE ACTIVE
+        <div className="flex items-center gap-2 animate-fade-in">
+          {/* AI Source Badge */}
+          {apiStatus === "live" ? (
+            <div className="flex items-center gap-1.5 text-[9px] font-mono text-emerald-400 font-bold px-2 py-0.5 rounded bg-emerald-950/30 border border-emerald-500/20 shadow-[0_0_8px_rgba(16,185,129,0.05)]">
+              <Sparkles className="w-3.5 h-3.5 text-emerald-400 animate-pulse" />
+              Powered by Gemini 2.5 Flash
+            </div>
+          ) : (
+            <div className="flex items-center gap-1.5 text-[9px] font-mono text-amber-500/80 font-bold px-2 py-0.5 rounded bg-amber-950/20 border border-amber-500/20">
+              <Terminal className="w-3.5 h-3.5 text-amber-500/80" />
+              Local Simulation Mode
+            </div>
+          )}
+
+          <div className="flex items-center gap-1 text-[9px] font-mono text-cyan-400 font-semibold px-2 py-0.5 rounded bg-slate-900 border border-slate-800">
+            <Activity className="w-3 h-3 text-cyan-400 animate-pulse" />
+            COGNITIVE NODE ACTIVE
+          </div>
         </div>
       </div>
 
@@ -140,6 +157,20 @@ export default function CopilotPanel({
               transition={{ duration: 0.3 }}
               className="flex-1 flex flex-col space-y-4 min-h-0"
             >
+              {/* API Status Warning Banners */}
+              {apiStatus === "simulated" && (
+                <div className="flex items-center gap-3 p-3 rounded-lg bg-slate-900/60 border border-slate-800 text-slate-400 text-xs font-medium shrink-0 animate-fade-in">
+                  <Terminal className="w-4 h-4 text-slate-500 shrink-0" />
+                  <span>Local Simulation Mode active. Configure <strong className="text-cyan-400 font-mono">GEMINI_API_KEY</strong> environment variable to enable live Gemini predictions.</span>
+                </div>
+              )}
+
+              {apiStatus === "error" && (
+                <div className="flex items-center gap-3 p-3 rounded-lg bg-rose-950/20 border border-rose-500/20 text-rose-400 text-xs font-semibold shrink-0 animate-fade-in">
+                  <ShieldAlert className="w-4 h-4 text-rose-400 shrink-0 animate-pulse" />
+                  <span>AI Copilot is temporarily unavailable. Running on local safety fallback datasets.</span>
+                </div>
+              )}
               {/* Prediction details */}
               {prediction && (
                 <div className="glass-panel bg-slate-950/60 rounded-lg p-4 border border-slate-900 relative">

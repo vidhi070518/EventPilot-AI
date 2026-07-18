@@ -16,6 +16,7 @@ interface HeaderProps {
   aiConfidence: number;
   demoMode: boolean;
   setDemoMode: (mode: boolean) => void;
+  weather?: string;
 }
 
 export default function Header({
@@ -23,7 +24,8 @@ export default function Header({
   activeAlerts,
   aiConfidence,
   demoMode,
-  setDemoMode
+  setDemoMode,
+  weather = "21°C | Clear"
 }: HeaderProps) {
   const [time, setTime] = useState("");
 
@@ -110,7 +112,7 @@ export default function Header({
               Weather
             </span>
             <span className="text-xs font-bold text-slate-300 font-mono">
-              21°C | Clear
+              {weather}
             </span>
           </div>
         </div>
