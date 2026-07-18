@@ -21,9 +21,16 @@ interface AIResponse {
 }
 
 export async function POST(request: Request) {
+  let body: any;
   try {
-    const body = await request.json();
-    const { scenarioKey, scenarioName, metrics, sections, weather, activeAlerts } = body;
+    body = await request.json();
+  } catch (parseError) {
+    console.error("Internal Server Error parsing JSON request:", parseError);
+    return NextResponse.json({ success: false, error: "API_BAD_REQUEST" });
+  }
+
+  try {
+    const { scenarioKey, scenarioName, metrics, sections, weather, activeAlerts } = body || {};
 
     const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey) {
