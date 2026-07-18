@@ -844,21 +844,7 @@ export default function WorkspaceConsole() {
         />
       </div>
 
-      {/* Hackathon Judge Tip Banner */}
-      <div className="glass-panel bg-cyan-950/10 border border-cyan-500/20 rounded-xl p-3 flex items-center justify-between gap-4 text-xs shrink-0 shadow-[0_0_12px_rgba(6,182,212,0.05)] animate-fade-in">
-        <div className="flex items-center gap-2 text-slate-300">
-          <Sparkles className="w-4 h-4 text-cyan-400 shrink-0 animate-pulse" />
-          <span>
-            <strong className="text-cyan-400 font-semibold font-mono tracking-wide">JUDGING BRIEFING:</strong> EventPilot AI is powered by a live <strong className="text-cyan-400">Gemini 2.5 Flash</strong> endpoint. Navigate to the <strong className="text-slate-200 font-bold">Simulation</strong> workspace to trigger real-time incident scenarios (e.g. Heavy Rain, Scanner Outages) and observe dynamic GenAI operational response plans.
-          </span>
-        </div>
-        <button 
-          onClick={() => setActiveItem("Simulation")}
-          className="px-3 py-1.5 rounded bg-cyan-950 hover:bg-cyan-900 border border-cyan-800/40 text-cyan-400 text-[10px] font-bold font-mono tracking-wider transition-colors shrink-0"
-        >
-          OPEN SIMULATOR
-        </button>
-      </div>
+
 
       {/* Grid: Map on Left, Summary Feed on Right */}
       <div className="flex-1 grid grid-cols-1 lg:grid-cols-5 gap-6 min-h-0">
