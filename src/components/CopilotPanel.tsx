@@ -88,7 +88,7 @@ export default function CopilotPanel({
           {apiStatus === "live" ? (
             <div className="flex items-center gap-1.5 text-[9px] font-mono text-emerald-400 font-bold px-2 py-0.5 rounded bg-emerald-950/30 border border-emerald-500/20 shadow-[0_0_8px_rgba(16,185,129,0.05)]">
               <Sparkles className="w-3.5 h-3.5 text-emerald-400 animate-pulse" />
-              Powered by Gemini 2.5 Flash
+              Powered by Gemini 3.5 Flash
             </div>
           ) : (
             <div className="flex items-center gap-1.5 text-[9px] font-mono text-amber-500/80 font-bold px-2 py-0.5 rounded bg-amber-950/20 border border-amber-500/20">
