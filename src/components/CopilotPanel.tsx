@@ -203,9 +203,9 @@ export default function CopilotPanel({
 
                 {/* Active Plan Detail Grid */}
                 {activePlan && (
-                  <div className="flex-1 grid grid-cols-1 md:grid-cols-5 gap-4 min-h-0 bg-slate-950/20 border border-slate-900/60 rounded-lg p-4">
+                  <div className="flex-1 grid grid-cols-5 gap-4 min-h-0 bg-slate-950/20 border border-slate-900/60 rounded-lg p-4">
                     {/* Left 3 columns: Actions list */}
-                    <div className="md:col-span-3 flex flex-col justify-between min-h-0">
+                    <div className="col-span-3 flex flex-col justify-between min-h-0">
                       <div className="overflow-y-auto pr-1">
                         <span className="text-[9px] font-bold text-slate-500 font-mono tracking-wider uppercase block mb-2">
                           Coordinated Dispatch Actions
@@ -241,7 +241,7 @@ export default function CopilotPanel({
                     </div>
 
                     {/* Right 2 columns: Impact Comparison Card */}
-                    <div className="md:col-span-2 border-l border-slate-900 pl-4 flex flex-col justify-between overflow-y-auto max-h-full pr-1">
+                    <div className="col-span-2 border-l border-slate-900 pl-4 flex flex-col justify-between overflow-y-auto max-h-full pr-1">
                       <div>
                         <span className="text-[9px] font-bold text-slate-500 font-mono tracking-wider uppercase block mb-2">
                           Projected Operational Impact
